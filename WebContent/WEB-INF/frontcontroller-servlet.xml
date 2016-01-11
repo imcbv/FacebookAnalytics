@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<context:component-scan base-package="it.polimi.awt.facebookanalytics.controller" />
+	<context:component-scan base-package="it.polimi.awt.facebookanalytics.service" />
+	<context:component-scan base-package="it.polimi.awt.facebookanalytics.dao" />
+	<context:component-scan base-package="it.polimi.awt.facebookanalytics.model" />
+	<context:property-placeholder location="classpath:persistence-mysql.properties" />
+
+	<context:annotation-config />
+
+	<mvc:annotation-driven />
+
+	<bean class="it.polimi.awt.facebookanalytics.config.FacebookConfig"></bean>
+
+	<!-- JDBC Data Source. It is assumed you have MySQL running on localhost 
+		port 3306 with username root and blank password. Change below if it's not 
+		the case -->
+	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.pass}" />
+	</bean>
+
+	<!-- Hibernate Session Factory -->
+	<bean id="mySessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="myDataSource" />
+		<property name="packagesToScan" value="it.polimi.awt.facebookanalytics.model" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.c3p0.min_size">5</prop>
+				<prop key="hibernate.c3p0.max_size">20</prop>
+				<prop key="hibernate.c3p0.timeout">1800</prop>
+				<prop key="hibernate.c3p0.max_statements">50</prop>
+			</props>
+		</property>
+
+	</bean>
+
+	<!-- Hibernate Transaction Manager -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+
+	<!-- Activates annotation based transaction management -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<mvc:resources mapping="/resources/**" location="/WEB-INF/resources/" />
+	<mvc:resources mapping="user/resources/**" location="/WEB-INF/resources/" />
+	<mvc:resources mapping="user/commonFriends/resources/**"
+		location="/WEB-INF/resources/" />
+	<mvc:resources mapping="user/commonFriends/resources/**"
+		location="/WEB-INF/resources/" />
+		<mvc:resources mapping="user/commonFriends/graph/resources/**"
+		location="/WEB-INF/resources/" />
+
+</beans>
